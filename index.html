@@ -1750,6 +1750,18 @@
         test: !!sessionData.test
       });
 
+      // Respaldo ante el redireccionamiento de pagina completa que hace
+      // ePayco al terminar (confirmado 2026-10-04: NO es un callback de JS
+      // en la misma pagina -- recarga el navegador entero hacia la "URL de
+      // Respuesta", lo que borra cualquier estado de JS en memoria y hace
+      // que onResponse de abajo nunca llegue a dispararse). Guardamos el
+      // codigo en localStorage ANTES de abrir el checkout; al volver a
+      // cargar la pagina, _aplCheckPendingWebCode() lo encuentra y muestra
+      // el aviso igual, sin depender de que ePayco avise nada.
+      try {
+        localStorage.setItem('aplPendingWebCode', JSON.stringify({ code: code, planLabel: planLabel, ts: Date.now() }));
+      } catch (e) {}
+
       var bodyChildrenBefore = Array.prototype.slice.call(document.body.children);
       checkout.setHooks({
         onResponse: function(){ showRedeemCodeModal(code, planLabel); },
@@ -1799,7 +1811,24 @@ function showRedeemCodeModal(code, planLabel){
     document.body.appendChild(modal);
   }
 
-  
+  // Revisa al cargar la pagina si queda un codigo pendiente de la ultima
+  // vez que se abrio un pago (ver nota en payPlanOnline) -- cubre el caso
+  // en que ePayco redirigio la pagina entera en vez de avisar por JS.
+  // Vencimiento de 30 min: de ahi en mas se asume que el usuario abandono
+  // esa compra hace rato y no tiene sentido mostrarle el aviso de golpe en
+  // una visita nueva sin relacion.
+  (function _aplCheckPendingWebCode(){
+    try {
+      var raw = localStorage.getItem('aplPendingWebCode');
+      if (!raw) return;
+      localStorage.removeItem('aplPendingWebCode');
+      var pending = JSON.parse(raw);
+      if (!pending || !pending.code) return;
+      if (Date.now() - pending.ts > 30 * 60 * 1000) return;
+      showRedeemCodeModal(pending.code, pending.planLabel);
+    } catch (e) {}
+  })();
+
   // ---------- Captura del software: ampliar a pantalla completa ----------
   function openShot(){
     var lb = document.getElementById('shotLightbox');
