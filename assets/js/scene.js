@@ -382,6 +382,7 @@ export class World {
     this.ray = new THREE.Raycaster();
     this.zPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
     this.stageEl = document.getElementById('heroStage');
+    this.streetEl = document.getElementById('locales');
 
     const pmrem = new THREE.PMREMGenerator(r);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -685,12 +686,9 @@ export class World {
   // El logo vive en su espacio de la página (#heroStage): se ubica con la cámara
   // de destino del scroll, así acompaña al contenido en cualquier pantalla y
   // nunca queda encima de los textos ni de los botones.
-  placeHero() {
-    const el = this.stageEl;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
+  placeHero(r) {
     const h = window.innerHeight;
-    if (!r.width || !r.height || r.bottom < -h || r.top > 2 * h) return;
+    if (!r.width || !r.height) return;
     const vc = this.vcam;
     vc.position.copy(this.tgPos);
     vc.up.set(Math.sin(this.tgRoll), Math.cos(this.tgRoll), 0);
@@ -704,7 +702,7 @@ export class World {
     const depth = (this._rel || (this._rel = new THREE.Vector3())).subVectors(this.heroAnchor, vc.position).dot(dir);
     const perPx = (2 * depth * Math.tan(THREE.MathUtils.degToRad(vc.fov / 2))) / h;
     const fit = r.width > 600 ? 0.64 : 0.74;
-    this.heroScale = (Math.min(r.width, r.height * 1.25) * fit * perPx) / 3.7;
+    this.heroScale = Math.min(1.08, (Math.min(r.width, r.height * 1.25) * fit * perPx) / 3.7);
   }
 
   intro() {
@@ -795,7 +793,8 @@ export class World {
     this.tgPos.copy(tg.pos);
     this.tgLook.copy(tg.look);
     this.tgRoll = tg.roll;
-    const k = dt ? damp(dt, 3.4) : 1;
+    const gap = this.camPos.distanceTo(tg.pos);
+    const k = dt ? damp(dt, 3.4 + Math.min(Math.max(gap - 4, 0) * 1.6, 26)) : 1;
     const px = this.pointerSmooth.x;
     const py = this.pointerSmooth.y;
     const want = this._want || (this._want = new THREE.Vector3());
@@ -814,7 +813,7 @@ export class World {
     this.camera.position.copy(this.camPos);
     this.camera.up.set(Math.sin(this.camRoll), Math.cos(this.camRoll), 0);
     this.camera.lookAt(this.camLook);
-    this.bg.lerp(tg.color, dt ? damp(dt, 4) : 1);
+    this.bg.lerp(tg.color, dt ? damp(dt, 4 + Math.min(Math.max(gap - 4, 0) * 1.6, 26)) : 1);
     this.scene.fog.color.copy(this.bg);
   }
 
@@ -846,7 +845,12 @@ export class World {
       const sp = m.userData.spin;
       m.rotation.set(sp.x * (1 - local), sp.y * (1 - local), sp.z * (1 - local));
     }
-    if (camY > -20) this.placeHero();
+    const vh = window.innerHeight;
+    const hr = this.stageEl ? this.stageEl.getBoundingClientRect() : null;
+    const heroNear = !hr || (hr.bottom > -vh * 0.3 && hr.top < vh * 1.3);
+    if (hr && heroNear) this.placeHero(hr);
+    this.icon.visible = this.halo.visible = heroNear;
+    for (const r of this.rings) r.visible = heroNear;
     const ic = this.icon;
     this.iconRot.x += (-this.pointerSmooth.y * 0.32 - this.iconRot.x) * damp(dt, 5);
     this.iconRot.y += (this.pointerSmooth.x * 0.55 - this.iconRot.y) * damp(dt, 5);
@@ -903,7 +907,8 @@ export class World {
     this._burstWasAlive = alive;
 
     // Calle: solo se dibuja cuando la cámara está cerca (nunca detrás del inicio)
-    this.street.visible = camY < -14;
+    const sr = this.streetEl ? this.streetEl.getBoundingClientRect() : null;
+    this.street.visible = camY < -14 && (!sr || (sr.top < vh * 1.15 && sr.bottom > -vh * 0.3));
     // Calle: luces según encendido y local elegido
     const w = clamp01(1 - Math.abs(camY - (STREET_Y + 2.5)) / 16);
     this.key.intensity = 2.4 * (1 - w) + (0.22 + 0.55 * this.power) * w;

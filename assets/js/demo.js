@@ -408,16 +408,10 @@ export function initDemo({ audio, pads }) {
     return { x, y, w: el.offsetWidth, h: el.offsetHeight };
   };
   const q = (s) => win.querySelector(s);
-  // En celular la app se reacomoda (is-compact) y se ve completa, sin recortes;
-  // en pantallas más grandes se muestra igual que en el computador, a escala.
+  // La ventana de la app se ve siempre completa, a escala del ancho disponible:
+  // grande en computador y tablet, y pequeña en celular (como el video oficial).
   function frame() {
-    const W = tilt.clientWidth;
-    const compact = W < 640;
-    win.classList.toggle('is-compact', compact);
-    tilt.classList.toggle('is-compact', compact);
-    const s = W / (compact ? 440 : 1280);
-    tilt.style.height = compact ? `${Math.round(win.offsetHeight * s)}px` : '';
-    gsap.set(win, { scale: s, x: 0, y: 0 });
+    gsap.set(win, { scale: tilt.clientWidth / 1280, x: 0, y: 0 });
   }
   gsap.set(win, { transformOrigin: '0 0' });
   new ResizeObserver(() => frame()).observe(tilt);
