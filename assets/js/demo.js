@@ -407,50 +407,20 @@ export function initDemo({ audio, pads }) {
     while (n && n !== win) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
     return { x, y, w: el.offsetWidth, h: el.offsetHeight };
   };
-  const union = (...els) => {
-    const r = els.map(pos);
-    const x = Math.min(...r.map((a) => a.x));
-    const y = Math.min(...r.map((a) => a.y));
-    return { x, y, w: Math.max(...r.map((a) => a.x + a.w)) - x, h: Math.max(...r.map((a) => a.y + a.h)) - y };
-  };
   const q = (s) => win.querySelector(s);
-  const regions = [
-    () => union(q('.ap-grid'), q('.ap-plus-wrap')),
-    () => union(q('.ap-deck'), q('.ap-transport')),
-    () => pos(q('#apModal .ap-modal__card')),
-    () => union(q('.ap-deck'), q('.ap-right .ap-sec')),
-    () => pos(q('.ap-cart')),
-    () => union(q('.ap-views'), q('.ap-grid__head')),
-    () => pos(q('.ap-views')),
-    () => pos(q('.ap-views')),
-    () => ({ x: 0, y: 0, w: 1280, h: 800 }),
-  ];
-  const zoomed = () => tilt.clientWidth < 760;
-  function frame(instant) {
+  // En celular la app se reacomoda (is-compact) y se ve completa, sin recortes;
+  // en pantallas más grandes se muestra igual que en el computador, a escala.
+  function frame() {
     const W = tilt.clientWidth;
-    const H = tilt.clientHeight;
-    const base = W / 1280;
-    let s = base;
-    let x = 0;
-    let y = 0;
-    tilt.classList.toggle('is-scroll', zoomed() && tryMode);
-    if (zoomed() && tryMode) {
-      s = 0.62;
-      tilt.style.setProperty('--sw', `${1280 * s}px`);
-      tilt.style.setProperty('--sh', `${800 * s}px`);
-    } else if (zoomed()) {
-      const r = regions[step]();
-      s = Math.min(Math.max(W / (r.w * 0.7), base), 0.62);
-      x = Math.min(0, Math.max(W - 1280 * s, W / 2 - (r.x + r.w / 2) * s));
-      y = Math.min(0, Math.max(H - 800 * s, H / 2 - (r.y + r.h / 2) * s));
-    }
-    gsap.to(win, { scale: s, x, y, duration: instant ? 0 : 1.1, ease: 'expo.inOut', overwrite: 'auto' });
+    const compact = W < 640;
+    win.classList.toggle('is-compact', compact);
+    tilt.classList.toggle('is-compact', compact);
+    const s = W / (compact ? 440 : 1280);
+    tilt.style.height = compact ? `${Math.round(win.offsetHeight * s)}px` : '';
+    gsap.set(win, { scale: s, x: 0, y: 0 });
   }
-  const sizer = document.createElement('div');
-  sizer.className = 'ap-sizer';
-  tilt.appendChild(sizer);
   gsap.set(win, { transformOrigin: '0 0' });
-  new ResizeObserver(() => frame(true)).observe(tilt);
+  new ResizeObserver(() => frame()).observe(tilt);
 
   gsap.fromTo(tilt, { rotationX: 28, rotationY: -16, rotationZ: 5, scale: 0.84, yPercent: 4 }, {
     rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1, yPercent: 0, ease: 'none',
@@ -487,7 +457,7 @@ export function initDemo({ audio, pads }) {
       caption.textContent = CAPTIONS[i];
       if (!instant) gsap.fromTo(caption, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out' });
     }
-    frame(instant);
+    frame();
   }
 
   // ---------- estados listos al inicio de cada parte ----------

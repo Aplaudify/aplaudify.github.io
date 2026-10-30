@@ -374,6 +374,14 @@ export class World {
     this.camPos = new THREE.Vector3(0, 2, 34);
     this.camLook = new THREE.Vector3(0, 0, 0);
     this.camRoll = 0;
+    // Cámara "de destino" (la del scroll, sin inercia ni intro) para ubicar el logo.
+    this.vcam = this.camera.clone();
+    this.tgPos = new THREE.Vector3();
+    this.tgLook = new THREE.Vector3();
+    this.tgRoll = 0;
+    this.ray = new THREE.Raycaster();
+    this.zPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    this.stageEl = document.getElementById('heroStage');
 
     const pmrem = new THREE.PMREMGenerator(r);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -645,6 +653,7 @@ export class World {
     }).sort((a, b) => a.at - b.at);
     for (let i = 1; i < keys.length; i++) if (keys[i].at <= keys[i - 1].at) keys[i].at = keys[i - 1].at + 1;
     this.keys = keys;
+    this.streetAt = keys.find((k) => k.shot === 'street')?.at;
   }
 
   setPower(on) { this.powerTarget = on ? 1 : 0; }
@@ -673,8 +682,34 @@ export class World {
     this.kick = 1;
   }
 
+  // El logo vive en su espacio de la página (#heroStage): se ubica con la cámara
+  // de destino del scroll, así acompaña al contenido en cualquier pantalla y
+  // nunca queda encima de los textos ni de los botones.
+  placeHero() {
+    const el = this.stageEl;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const h = window.innerHeight;
+    if (!r.width || !r.height || r.bottom < -h || r.top > 2 * h) return;
+    const vc = this.vcam;
+    vc.position.copy(this.tgPos);
+    vc.up.set(Math.sin(this.tgRoll), Math.cos(this.tgRoll), 0);
+    vc.lookAt(this.tgLook);
+    vc.updateMatrixWorld();
+    const ndc = this._ndc || (this._ndc = new THREE.Vector2());
+    ndc.set(((r.left + r.width / 2) / window.innerWidth) * 2 - 1, -(((r.top + r.height / 2) / h) * 2 - 1));
+    this.ray.setFromCamera(ndc, vc);
+    if (!this.ray.ray.intersectPlane(this.zPlane, this.heroAnchor)) return;
+    const dir = vc.getWorldDirection(this._dir || (this._dir = new THREE.Vector3()));
+    const depth = (this._rel || (this._rel = new THREE.Vector3())).subVectors(this.heroAnchor, vc.position).dot(dir);
+    const perPx = (2 * depth * Math.tan(THREE.MathUtils.degToRad(vc.fov / 2))) / h;
+    const fit = r.width > 600 ? 0.64 : 0.74;
+    this.heroScale = (Math.min(r.width, r.height * 1.25) * fit * perPx) / 3.7;
+  }
+
   intro() {
     this.introT = 0;
+    this.camLook.copy(this.target(window.scrollY).look);
   }
 
   onResize() {
@@ -684,6 +719,9 @@ export class World {
     this.camera.aspect = w / h;
     this.camera.fov = w / h < 0.8 ? 46 : 38;
     this.camera.updateProjectionMatrix();
+    this.vcam.fov = this.camera.fov;
+    this.vcam.aspect = this.camera.aspect;
+    this.vcam.updateProjectionMatrix();
     const dist = 10.5;
     const vh = 2 * dist * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const vw = vh * this.camera.aspect;
@@ -716,11 +754,21 @@ export class World {
       this._ss.pos[i] = wide.pos[i] + (close.pos[i] - wide.pos[i]) * k;
       this._ss.look[i] = wide.look[i] + (close.look[i] - wide.look[i]) * k;
     }
+    // Las casas acompañan al scroll como cualquier parte de la página: entran
+    // desde abajo con su sección y se van con ella (no aparecen de golpe).
+    if (this.streetAt != null && this._y != null) {
+      const depth = this._ss.pos[2] - this._ss.look[2];
+      const perPx = (2 * depth * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))) / window.innerHeight;
+      const off = -(this._y - this.streetAt) * perPx;
+      this._ss.pos[1] += off;
+      this._ss.look[1] += off;
+    }
     return this._ss;
   }
 
   // Calcula a dónde debe ir la cámara según el scroll.
   target(y) {
+    this._y = y;
     const keys = this.keys;
     if (!keys.length) return { pos: SHOTS.hero.pos, look: SHOTS.hero.look, roll: 0, color: this.bg, t: 0, i: 0 };
     let i = 0;
@@ -744,6 +792,9 @@ export class World {
   applyCamera(dt) {
     const y = window.scrollY;
     const tg = this.target(y);
+    this.tgPos.copy(tg.pos);
+    this.tgLook.copy(tg.look);
+    this.tgRoll = tg.roll;
     const k = dt ? damp(dt, 3.4) : 1;
     const px = this.pointerSmooth.x;
     const py = this.pointerSmooth.y;
@@ -795,6 +846,7 @@ export class World {
       const sp = m.userData.spin;
       m.rotation.set(sp.x * (1 - local), sp.y * (1 - local), sp.z * (1 - local));
     }
+    if (camY > -20) this.placeHero();
     const ic = this.icon;
     this.iconRot.x += (-this.pointerSmooth.y * 0.32 - this.iconRot.x) * damp(dt, 5);
     this.iconRot.y += (this.pointerSmooth.x * 0.55 - this.iconRot.y) * damp(dt, 5);
@@ -850,6 +902,8 @@ export class World {
     if (alive || this._burstWasAlive) this.burstMeshes.forEach((m) => { m.instanceMatrix.needsUpdate = true; });
     this._burstWasAlive = alive;
 
+    // Calle: solo se dibuja cuando la cámara está cerca (nunca detrás del inicio)
+    this.street.visible = camY < -14;
     // Calle: luces según encendido y local elegido
     const w = clamp01(1 - Math.abs(camY - (STREET_Y + 2.5)) / 16);
     this.key.intensity = 2.4 * (1 - w) + (0.22 + 0.55 * this.power) * w;

@@ -19,6 +19,7 @@ const mobile = mq('(max-width: 860px)') || mq('(pointer: coarse)');
 $('year').textContent = String(new Date().getFullYear());
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
+window.addEventListener('load', () => { if (!entered) window.scrollTo(0, 0); });
 
 let world = null;
 const partsP = fetch('assets/img/logo/logo-parts.json').then((r) => r.json()).then((j) => j.parts);
