@@ -5,4 +5,8 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url><loc>https://aplaudify.com/terminos.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://aplaudify.com/privacidad.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://aplaudify.com/reembolsos.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://aplaudify.com/cookies.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

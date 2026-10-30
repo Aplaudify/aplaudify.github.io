@@ -1,0 +1,46 @@
+/* Páginas legales: lectura cómoda, mismo tipo de letra y colores de la web. */
+@font-face {
+  font-family: "Bricolage";
+  src: url("../fonts/bricolage-grotesque-var.woff2") format("woff2");
+  font-weight: 200 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+}
+:root {
+  --bg: #050807; --ink: #f2f5ef; --ink-2: rgba(242, 245, 239, .74); --ink-3: rgba(242, 245, 239, .52);
+  --green: #2bea7a; --line: rgba(242, 245, 239, .1);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: "Bricolage", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 1.0625rem; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+a { color: var(--green); text-underline-offset: .2em; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 6px; }
+.skip { position: absolute; left: 16px; top: -60px; padding: 10px 14px; border-radius: 10px; background: var(--green); color: #03140a; font-weight: 700; z-index: 10; }
+.skip:focus { top: 12px; }
+.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(16px, 4vw, 40px); background: rgba(5, 8, 7, .88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top img { display: block; width: 132px; height: auto; }
+.top a.back { color: var(--ink); text-decoration: none; font-weight: 600; font-size: .9375rem; padding: 8px 14px; border-radius: 999px; background: rgba(242, 245, 239, .08); }
+.top a.back:hover { background: rgba(242, 245, 239, .16); }
+main { max-width: 760px; margin: 0 auto; padding: clamp(36px, 7vw, 72px) 16px 40px; }
+.kicker { color: var(--green); font-weight: 700; font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; }
+h1 { margin: 8px 0 6px; font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 780; font-stretch: 86%; letter-spacing: -0.03em; line-height: 1.02; }
+.updated { color: var(--ink-3); font-size: .9375rem; margin: 0 0 28px; }
+.intro { font-size: 1.1875rem; color: var(--ink-2); }
+h2 { margin: 40px 0 10px; font-size: 1.375rem; font-weight: 720; letter-spacing: -0.01em; line-height: 1.25; }
+h3 { margin: 22px 0 6px; font-size: 1.0625rem; font-weight: 700; }
+p, li { color: var(--ink-2); }
+strong, b { color: var(--ink); font-weight: 650; }
+ul, ol { padding-left: 22px; }
+li + li { margin-top: 6px; }
+.card { margin: 18px 0; padding: 18px 20px; border-radius: 18px; background: rgba(242, 245, 239, .05); border: 1px solid var(--line); }
+.card p { margin: 4px 0; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .9375rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+th { color: var(--ink); font-weight: 650; }
+.table-wrap { overflow-x: auto; }
+.legal-nav { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-wrap: wrap; gap: 8px 18px; border-top: 1px solid var(--line); font-size: .9375rem; }
+.legal-nav a { color: var(--ink-2); }
+.legal-nav a[aria-current="page"] { color: var(--ink); font-weight: 650; }
+.legal-nav small { width: 100%; color: var(--ink-3); }
+@media (max-width: 520px) { .top img { width: 112px; } }

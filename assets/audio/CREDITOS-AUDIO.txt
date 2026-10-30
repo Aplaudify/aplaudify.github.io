@@ -1,0 +1,22 @@
+Música de la web
+
+Música de fondo (lista que va rotando):
+- musica/ambiente-chill.mp3      "Gardens - Stylish Chill" por penguinmusic (Pixabay, licencia gratuita de Pixabay)  https://pixabay.com/music/rnb-gardens-stylish-chill-303261/
+- musica/lounge-cybersdf.mp3     "Lounge" por CyberSDF (Jamendo) — licencia CC BY 3.0  https://creativecommons.org/licenses/by/3.0/
+- musica/lazy-beach-breaks.mp3   "Lazy beach breaks" por K4MMERER (Jamendo) — licencia CC BY 3.0 (versión recortada)
+- musica/upbeat-lounge.mp3       "Upbeat Lounge Background" por Soundrider/Dope (Jamendo, https://www.jamendo.com/track/1670563) — licencia CC BY 3.0
+Las canciones con CC BY 3.0 permiten uso comercial dando crédito al autor: el crédito está en el pie de la página web.
+
+Música de respaldo (simulación de Música Off):
+- musica/respaldo-animado.mp3    "Funk Groove Soul" por prettyjohn1 (Pixabay, licencia gratuita de Pixabay)  https://pixabay.com/music/funk-funk-groove-soul-527077/
+
+Música de cada local (la calle), todas de Pixabay (licencia gratuita para uso comercial, sin atribución obligatoria):
+- locales/supermercado.mp3    "Pop Upbeat - Upbeat Pop" por The_Mountain
+- locales/tienda-de-ropa.mp3  "Caliente Flow" por White_Records
+- locales/cafeteria.mp3       "Morning Garden - Acoustic Chill" por folk_acoustic
+- locales/gimnasio.mp3        "Energetic Action Sport" por AlexGrohl
+- locales/industria.mp3       "Corporate" por leberch
+
+Efectos de sonido (sfx/): sintetizados a medida para Aplaudify, sin muestras de terceros.
+Notas musicales del logo y timbre de la botonera: se generan en vivo en el navegador.
+Voces, cuñas y jingles (voces/, jingles/): producción propia de Aplaudify (voz principal: Hernán Manrique).
