@@ -341,23 +341,24 @@ const CORE = [
 const BASIC = [
   ['Sin límite de tiempo', 'Tu plan sigue activo mientras esté al día, sin el límite de 7 días de la prueba.'],
   ['Streams públicos', 'Programa streams públicos en vivo dentro de tu parrilla.'],
+  ['Paquetes extra', 'Si necesitas más cuñas, videos o jingles, los compras aparte: no vencen y quedan en tu cuenta.'],
 ];
 const quota = (m, a, extra = '') => (c) => (c === 'a' ? `Hasta ${a} al año con el plan anual${extra}.` : `Hasta ${m} al mes${extra}.`);
 const DETAILS = {
-  gratis: [{ title: 'Todo incluido durante 7 días', wide: true, items: [...CORE, ['Audios comerciales', '2 gratis durante la prueba.'], ['Videos para redes', '2 gratis durante la prueba.']] }],
+  gratis: [{ title: 'Todo incluido durante 7 días', wide: true, items: [...CORE, ['Audios comerciales', '2 gratis durante la prueba.'], ['Videos para redes', '1 gratis durante la prueba: lo creas y lo ves en la app (para descargarlo, elige un plan).'], ['Jingles', '1 gratis durante la prueba, hecho a la medida de tu negocio.']] }],
   basic: [
     { title: 'Todo lo del plan Gratis', items: CORE },
-    { title: 'Además, con Básico', items: [...BASIC, ['Audios comerciales', quota(5, 70)], ['Videos para redes', quota(5, 70)]] },
+    { title: 'Además, con Básico', items: [...BASIC, ['Audios comerciales', quota(5, 70)], ['Videos para redes', quota(5, 70)], ['Jingles', quota(2, 28, ', hechos a la medida de tu negocio')]] },
   ],
   pro: [
     { title: 'Todo lo del plan Gratis', items: CORE },
     { title: 'Todo lo del plan Básico', items: BASIC },
-    { title: 'Además, con Pro', items: [['Música Off de mejor calidad', 'Música de respaldo de mejor calidad y más variada.'], ['Audios comerciales', quota(15, 210, ', con mejor calidad')], ['Videos para redes', quota(15, 210, ', con mejor calidad')]] },
+    { title: 'Además, con Pro', items: [['Música Off de mejor calidad', 'Música de respaldo de mejor calidad y más variada.'], ['Audios comerciales', quota(15, 210, ', con mejor calidad')], ['Videos para redes', quota(15, 210, ', con mejor calidad')], ['Jingles', quota(4, 56, ', hechos a la medida de tu negocio')], ['Videos profesionales', '2 al mes. Se renuevan cada mes, también en el plan anual.']] },
   ],
   premium: [
     { title: 'Todo lo del plan Gratis', items: CORE },
     { title: 'Todo lo de Básico y Pro', items: [...BASIC, ['Música Off de mejor calidad', 'Música de respaldo de mejor calidad y más variada.']] },
-    { title: 'Además, con Premium', items: [['Música Off en la mejor calidad', 'La música de respaldo con la mejor calidad de audio y la mayor variedad.'], ['Audios comerciales', quota(25, 350, ', en la mejor calidad')], ['Videos para redes', quota(25, 350, ', en la mejor calidad')]] },
+    { title: 'Además, con Premium', items: [['Música Off en la mejor calidad', 'La música de respaldo con la mejor calidad de audio y la mayor variedad.'], ['Audios comerciales', quota(25, 350, ', en la mejor calidad')], ['Videos para redes', quota(25, 350, ', en la mejor calidad')], ['Jingles', quota(6, 84, ', en la mejor calidad')], ['Videos profesionales', '4 al mes. Se renuevan cada mes, también en el plan anual.']] },
   ],
 };
 
